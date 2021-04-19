@@ -68,7 +68,7 @@
         </dependency>
 
     </dependencies>
-    <!--	srping   boot 内部依赖  需要通过这种方式修改版本-->
+    <!--	srping   boot 内部依赖  需要通过这种方式修改版本 -->
     <dependencyManagement>
         <dependencies>
             <dependency>
