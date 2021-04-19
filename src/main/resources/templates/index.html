@@ -9,7 +9,7 @@
 </head>
 
 <body class="pg">
-<div class="page">
+<div class="page" id="app">
     <div id="mallPage" class=" mallist tmall- page-not-market ">
 
         <!-- 头部搜索 -->
@@ -119,8 +119,26 @@
     </div>
 </div>
 
+<script th:src="@{/js/axios.min.js}"></script>
+<script th:src="@{/js/vue.min.js}"></script>
 <script>
+    new Vue({
+        el: '#app',
+        data:{
+            keyword: '',
+            results: []
 
+        },
+        methods:{
+            searchKey(){
+                var keyword = this.keyword;
+                console.log(keyword);
+                axios.get('search/'+ keyword + "/1/10").then(response=>{
+                    console.log(response.data);
+                })
+            }
+        }
+    })
 </script>
 
 </body>
