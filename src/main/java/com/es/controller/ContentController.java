@@ -35,7 +35,7 @@ public class ContentController {
                        @PathVariable(value = "pageSize",required = false) int pageSize,
                        @PathVariable("keyword") String keyword){
         try {
-            return contentService.searchPage(keyword,page,pageSize);
+            return contentService.searchPageHighLigth(keyword,page,pageSize);
         }catch (Exception e){
             System.out.println(e);
             return null;

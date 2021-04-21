@@ -59,6 +59,9 @@ public class HtmlParseUtil {
     private static void getChildElement(Element el,Content content){
         //获取图片的img 标签byTag
         String img = el.getElementsByTag("img").eq(0).attr("data-lazy-img");
+        if ("done".equals(img)){
+            img = el.getElementsByTag("img").eq(0).attr("src");
+        }
         content.setImage(img);
 
         String price = el.getElementsByClass("p-price").text();
