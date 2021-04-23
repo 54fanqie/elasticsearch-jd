@@ -1,0 +1,105 @@
+/* order: 模板优先级order 值越大，在 merge 规则的时候优先级越高。*/
+//analyzer: 中文分词，ik_max_word细粒度分词，会穷尽一个语句中所有分词可能，ik_smart 粗粒度分词，优先匹配最长词*/
+
+{
+  "order": 0,
+  "version": 60001,
+  "index_patterns": [
+    "ps-*"
+  ],
+  "settings": {
+    "index": {
+      "number_of_shards": "1",
+      "refresh_interval": "5s"
+    }
+  },
+  "mappings": {
+    "dynamic_templates": [{
+      "message_field": {
+        "path_match": "message",
+        "mapping": {
+          "norms": false,
+          "type": "text"
+        },
+        "match_mapping_type": "string"
+      }
+    },
+      {
+        "string_fields": {
+          "mapping": {
+            "norms": false,
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "ignore_above": 256,
+                "type": "keyword"
+              }
+            }
+          },
+          "match_mapping_type": "string",
+          "match": "*"
+        }
+      }
+    ],
+    "properties": {
+      "@timestamp": {
+        "type": "date"
+      },
+      "geoip": {
+        "dynamic": true,
+        "properties": {
+          "ip": {
+            "type": "ip"
+          },
+          "latitude": {
+            "type": "half_float"
+          },
+          "location": {
+            "type": "geo_point"
+          },
+          "longitude": {
+            "type": "half_float"
+          }
+        }
+      },
+      "@version": {
+        "type": "keyword"
+      },
+      "id": {
+        "type": "long"
+      },
+      "name": {
+        "type": "keyword"
+      },
+      "es_id": {
+        "type": "long"
+      },
+      "dept_id": {
+        "type": "long"
+      },
+      "status": {
+        "type": "long"
+      },
+      "sign_time": {
+        "type": "date",
+        "format": "EEE MMM dd HH:mm:ss Z YYYY"
+      },
+      "business_type": {
+        "type": "keyword"
+      },
+      "dept_name": {
+        "type": "keyword"
+      },
+      "es_key": {
+        "type": "long"
+      },
+      "seal_create_time": {
+        "type": "date",
+        "format": "EEE MMM dd HH:mm:ss Z YYYY"
+      }
+    }
+  },
+  "aliases": {}
+}
+
+

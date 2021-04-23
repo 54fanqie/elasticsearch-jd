@@ -8,8 +8,11 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.core.CountRequest;
+import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -45,40 +48,40 @@ public class ContentService {
         BulkRequest bulkRequest = new BulkRequest();
         bulkRequest.timeout("2m");
 
-        for (int i = 0; i < arrayList.size() ; i++) {
+        for (int i = 0; i < arrayList.size(); i++) {
             Content content = arrayList.get(i);
             System.out.println(JSON.toJSONString(content));
             bulkRequest.add(new IndexRequest("jd_goods").source(JSON.toJSONString(content),
                     XContentType.JSON)
             );
         }
-        BulkResponse bulkItemResponses =  restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+        BulkResponse bulkItemResponses = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
         return !bulkItemResponses.hasFailures();
     }
 
-    public List searchPage(String keyword,int page,int pageSize){
+    public List searchPage(String keyword, int page, int pageSize) {
 
         try {
             SearchRequest searchResult = new SearchRequest("jd_goods");
-            SearchSourceBuilder searchSourceBuilder  = new SearchSourceBuilder();
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.from(page);
             searchSourceBuilder.size(pageSize);
 
-            TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title",keyword);
+            TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title", keyword);
             searchSourceBuilder.query(termQueryBuilder);
             searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
             searchResult.source(searchSourceBuilder);
 
-            SearchResponse response = restHighLevelClient.search(searchResult,RequestOptions.DEFAULT);
+            SearchResponse response = restHighLevelClient.search(searchResult, RequestOptions.DEFAULT);
 
             List list = new ArrayList();
-            for (SearchHit documentFiled:response.getHits().getHits()
-                 ) {
+            for (SearchHit documentFiled : response.getHits().getHits()
+            ) {
                 list.add(documentFiled.getSourceAsMap());
             }
             return list;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             return null;
         }
@@ -87,19 +90,18 @@ public class ContentService {
     }
 
 
-
-    public List searchPageHighLigth  (String keyword,int page,int pageSize){
+    public List searchPageHighLigth(String keyword, int page, int pageSize) {
 
         try {
             //定位索引
             SearchRequest searchResult = new SearchRequest("jd_goods");
             //分页查询
-            SearchSourceBuilder searchSourceBuilder  = new SearchSourceBuilder();
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.from(page);
             searchSourceBuilder.size(pageSize);
 
             //精确匹配
-            TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title",keyword);
+            TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("title", keyword);
             searchSourceBuilder.query(termQueryBuilder);
             searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
@@ -114,23 +116,23 @@ public class ContentService {
 
             //请求
             searchResult.source(searchSourceBuilder);
-            SearchResponse response = restHighLevelClient.search(searchResult,RequestOptions.DEFAULT);
+            SearchResponse response = restHighLevelClient.search(searchResult, RequestOptions.DEFAULT);
 
             //解析结果，并对高亮数据处理
             List list = new ArrayList();
-            for (SearchHit hit:response.getHits().getHits()
+            for (SearchHit hit : response.getHits().getHits()
             ) {
 
                 //原来的结果
-                Map<String,Object> sourceAsMap = hit.getSourceAsMap();
+                Map<String, Object> sourceAsMap = hit.getSourceAsMap();
                 //高亮字段信息
                 Map<String, HighlightField> highlightFieldMap = hit.getHighlightFields();
                 HighlightField title = highlightFieldMap.get("title");
-                if (null !=title){
+                if (null != title) {
                     Text[] fragments = title.fragments();
                     StringBuilder n_title = new StringBuilder();
-                    for (Text t: fragments
-                         ) {
+                    for (Text t : fragments
+                    ) {
                         n_title.append(t);
 
                     }
@@ -139,11 +141,29 @@ public class ContentService {
                 list.add(sourceAsMap);
             }
             return list;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             return null;
         }
 
 
     }
+
+    public long countRequest(String keyword) {
+        try {
+            CountRequest countRequest = new CountRequest("blog")
+                    .routing("routing")
+                    .indicesOptions(IndicesOptions.lenientExpandOpen())
+                    .preference("_local");
+
+            CountResponse countResponse = restHighLevelClient.count(countRequest, RequestOptions.DEFAULT);
+            return countResponse.getCount();
+        } catch (Exception e) {
+            System.out.println(e);
+            return 0L;
+        }
+
+    }
+
+
 }
