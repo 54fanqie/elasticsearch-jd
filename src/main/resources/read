@@ -1,0 +1,31 @@
+  \
+// 如果 use_column_value 为真,需配置此参数. track 的数据库 column 名,该 column 必须是递增的. 一般是mysql主键
+  tracking_column => "autoid"
+
+  // 上次执行数据库的值，该值是上次查询时tracking_column设置的字段最大值
+  last_run_metadata_path => "/opt/logstash/conf/last_id"
+
+  // 是否清除 last_run_metadata_path 的记录,如果为真那么每次都相当于从头开始查询所有的数据库记录
+  clean_run => "false"
+
+
+
+
+  /* order: 模板优先级order 值越大，在 merge 规则的时候优先级越高。*/
+  //analyzer: 中文分词，ik_max_word细粒度分词，会穷尽一个语句中所有分词可能，ik_smart 粗粒度分词，优先匹配最长词*/
+  GET _search
+  {
+    "query": {
+      "match_all": {}
+    }
+  }
+
+  GET /_cat/health?v
+  GET  _cat/templates/
+  DELETE _template/ps_seal_log
+
+  HEAD _template/ps_seal_log
+
+  PUT _template
+
+  PUT  _template/ps_seal_log
